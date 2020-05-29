@@ -1,0 +1,19 @@
+﻿@using BlazingPizza.Mobile.Client.Elements;
+@inherits WebViewPlaygroundModel
+
+<StackLayout>
+    <Button OnClick="HandleOnClick" Text="Run Logic" />
+    <Label Text="@($"CanGoBack: {TheWebView?.CanGoBack.ToString()}")"></Label>
+    <Label Text="@($"GoBackRequested: {GoBackRequested.ToString()}")"></Label>
+    <Label Text="@($"GoForwardRequested: {GoForwardRequested.ToString()}")"></Label>
+    <Label Text="@($"CanGoForward: {TheWebView?.CanGoForward.ToString()}")"></Label>
+    <Label Text="@NavigationStatus"></Label>
+    <XWebView @ref="TheWebView"
+              Source="https://client.demo.projecteventhorizon.com/"
+              WidthRequest="1000"
+              HeightRequest="1000"
+              GoBackRequested="HandleGoBackRequested"
+              GoForwardRequested="HandleGoForwardRequested"
+              Navigating="HandleNavigating"
+              Navigated="HandleNavigated" />
+</StackLayout>

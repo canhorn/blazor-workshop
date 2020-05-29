@@ -1,0 +1,37 @@
+﻿
+
+<Frame BackgroundColor="Color.DarkGray"
+       CornerRadius="10">
+    <StackLayout class="pizza-item">
+        <Label class="pizza-item__title"
+               FontAttributes="FontAttributes.Bold"
+               FontSize="18"
+               TextColor="Color.White"
+               Text="@($"{Pizza.Size}\" {Pizza.Special.Name}")" />
+        <StackLayout class="pizza-item__toppings">
+            @foreach (var topping in Pizza.Toppings)
+            {
+                <Label class="pizza-item__topping__name"
+                       Padding="new Thickness(10, 0, 0, 0)"
+                       TextColor="Color.White"
+                       Text="@($"+ {topping.Topping.Name}")" />
+            }
+        </StackLayout>
+        <Label class="pizza-item__price"
+               FontAttributes="FontAttributes.Bold"
+               FontSize="16"
+               TextColor="Color.White"
+               Text="@Pizza.GetFormattedTotalPrice()" />
+        <Button class="pizza-item__delete-button"
+                OnClick="OnRemoved">
+            Remove
+        </Button>
+    </StackLayout>
+</Frame>
+
+@code {
+    [Parameter]
+    public Pizza Pizza { get; set; }
+    [Parameter]
+    public EventCallback OnRemoved { get; set; }
+}

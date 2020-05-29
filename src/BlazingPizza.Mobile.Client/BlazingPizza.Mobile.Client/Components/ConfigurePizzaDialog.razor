@@ -1,0 +1,180 @@
+﻿@inject HttpClient HttpClient
+
+<ContentPage class="dialog-container" @ref="contentPage">
+    <Grid>
+        <Layout>
+            <RowDefinition GridUnitType="GridUnitType.Auto" />
+            <RowDefinition GridUnitType="GridUnitType.Star" />
+            <RowDefinition GridUnitType="GridUnitType.Auto" />
+        </Layout>
+        <Contents>
+            <GridCell Row="0">
+                <Frame BackgroundColor="Color.Gray">
+                    <StackLayout>
+                        <Label Text="@Pizza.Special.Name"
+                               FontSize="30"
+                               TextColor="Color.White" />
+                        <Label Text="@Pizza.Special.Description"
+                               TextColor="Color.Orange" />
+
+                    </StackLayout>
+                </Frame>
+            </GridCell>
+            <GridCell Row="1">
+                <StackLayout>
+                    <Grid Margin="20">
+                        <Layout>
+                            <ColumnDefinition GridUnitType="GridUnitType.Auto" />
+                            <ColumnDefinition GridUnitType="GridUnitType.Star" />
+                            <ColumnDefinition GridUnitType="GridUnitType.Auto" />
+                            <RowDefinition GridUnitType="GridUnitType.Auto" />
+                        </Layout>
+                        <Contents>
+                            <GridCell Column="0">
+                                <Label Text="Size:" />
+                            </GridCell>
+                            <GridCell Column="1">
+                                <Slider Minimum="Pizza.MinimumSize"
+                                        Maximum="Pizza.MaximumSize"
+                                        ValueChanged="HandleSizeChanged"
+                                        MaximumTrackColor="Color.Gray"
+                                        MinimumTrackColor="Color.Gray"
+                                        Value="@Pizza.Size" />
+                            </GridCell>
+                            <GridCell Column="2">
+                                <Label Text="@($"{Pizza.Size} \" ({Pizza.GetFormattedTotalPrice()})")" />
+                            </GridCell>
+                        </Contents>
+                    </Grid>
+                    <Grid Margin="0">
+                        <Layout>
+                            <ColumnDefinition GridUnitType="GridUnitType.Star" />
+                            <RowDefinition GridUnitType="GridUnitType.Auto" />
+                        </Layout>
+                        <Contents>
+                            <GridCell Column="0">
+                                @if (toppings == null)
+                                {
+                                    <BlazingPizza.Mobile.Client.Components.Elements.Picker Title="Loading..." />
+                                }
+                                else if (Pizza.Toppings.Count >= 6)
+                                {
+                                    <Label HorizontalOptions="LayoutOptions.CenterAndExpand" Text="(Maximum Reached)" />
+                                }
+                                else
+                                {
+                                    <BlazingPizza.Mobile.Client.Components.Elements.Picker Title="Extra Toppings"
+                                                                                           TitleColor="Color.Red" Items="ListOfToppings"
+                                                                                           SelectedIndexChanged="HandleSelectedIndexChanged" />
+                                }
+                            </GridCell>
+                            <GridCell Column="0" Row="1">
+                                <StackLayout>
+                                    @foreach (var topping in Pizza.Toppings)
+                                    {
+                                        <Button BackgroundColor="Color.DarkRed"
+                                                TextColor="Color.White"
+                                                Text="@($"{topping.Topping.Name} ({topping.Topping.GetFormattedPrice()}) x")"
+                                                OnClick="() => HandleRemoveTopping(topping.Topping)" />
+                                    }
+                                </StackLayout>
+                            </GridCell>
+                        </Contents>
+                    </Grid>
+                </StackLayout>
+            </GridCell>
+            <GridCell Row="2">
+                <Frame BackgroundColor="Color.LightGray">
+                    <Grid VerticalOptions="LayoutOptions.CenterAndExpand">
+                        <Layout>
+                            <ColumnDefinition GridUnitType="GridUnitType.Auto" />
+                            <ColumnDefinition GridUnitType="GridUnitType.Star" />
+                            <ColumnDefinition GridUnitType="GridUnitType.Auto" />
+                        </Layout>
+                        <Contents>
+                            <GridCell Column="0">
+                                <Button Text="Cancel"
+                                        OnClick="HandleCancel" />
+                            </GridCell>
+                            <GridCell Column="1">
+                                <Label Text="@($"Prices: {Pizza.GetFormattedTotalPrice()}")"
+                                       HorizontalOptions="LayoutOptions.Center"
+                                       VerticalOptions="LayoutOptions.Center" />
+                            </GridCell>
+                            <GridCell Column="2">
+                                <Button Text="Order >"
+                                        TextColor="Color.White"
+                                        BackgroundColor="Color.Green"
+                                        OnClick="HandleConfirm"/>
+                            </GridCell>
+                        </Contents>
+                    </Grid>
+                </Frame>
+            </GridCell>
+        </Contents>
+    </Grid>
+</ContentPage>
+
+@code {
+    Microsoft.MobileBlazorBindings.Elements.ContentPage contentPage;
+    List<Topping> toppings;
+
+    List<string> ListOfToppings = new List<string>();
+
+    [Parameter]
+    public Pizza Pizza { get; set; }
+    [Parameter]
+    public EventCallback OnConfirm { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        toppings = await HttpClient.GetFromJsonAsync<List<Topping>>("toppings");
+        ListOfToppings = toppings.Select(a => $"{a.Name} - {a.GetFormattedPrice()}").ToList();
+    }
+
+    async Task HandleConfirm()
+    {
+        await contentPage.PopModalAsync();
+        await OnConfirm.InvokeAsync(null);
+    }
+
+    void HandleCancel()
+    {
+        contentPage.PopModalAsync();
+    }
+
+    void HandleSizeChanged(
+        double newValue
+    )
+    {
+        Pizza.Size = (int)newValue;
+    }
+
+    public void HandleSelectedIndexChanged(int selectedIndex)
+    {
+        if (selectedIndex == -1)
+        {
+            // Reset back to unselected element
+            return;
+        }
+        AddTopping(
+            toppings.ElementAt(selectedIndex)
+        );
+    }
+
+    public void HandleRemoveTopping(Topping topping)
+    {
+        Pizza.Toppings.RemoveAll(a => a.Topping == topping);
+    }
+
+    private void AddTopping(Topping topping)
+    {
+        if (Pizza.Toppings.Find(a => a.Topping == topping) == null)
+        {
+            Pizza.Toppings.Add(new PizzaTopping
+            {
+                Topping = topping,
+            });
+        }
+    }
+}

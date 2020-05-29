@@ -1,0 +1,45 @@
+﻿.large-text {
+    font-size: large;
+}
+
+.order-page {
+}
+
+.order-page__header {
+    padding: 10;
+}
+
+.order-page__scroll-view {
+    padding: 10;
+}
+
+.order-page__list {
+}
+
+.order-page__place-order-section {
+    background-color: darkred;
+    padding: 5;
+}
+
+.order-page__place-order__button {
+}
+
+.order-page__place-order__button--enabled {
+    background-color: darkgreen;
+    color: white;
+}
+
+.order-page__place-order__button--disabled {
+    color: white;
+}
+
+.order-page__total {
+    color: white;
+    text-align: center;
+    font-size: 20;
+}
+
+.order-page__empty-cart {
+    font-size: large;
+    text-align: center;
+}

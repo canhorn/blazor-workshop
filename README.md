@@ -1,3 +1,5 @@
+# With Client Built On Experimental Mobile Blazor Bindings
+
 # Blazor - app building workshop
 
 Welcome to the Blazor app building workshop! 

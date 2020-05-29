@@ -1,0 +1,66 @@
+﻿
+<StyleSheet Resource="Pages/OrderPage.razor.css" Assembly="GetType().Assembly"></StyleSheet>
+<Grid class="order-page">
+    <Layout>
+        <RowDefinition GridUnitType="GridUnitType.Auto" />
+        <RowDefinition GridUnitType="GridUnitType.Star" />
+        <RowDefinition GridUnitType="GridUnitType.Auto" />
+    </Layout>
+    <Contents>
+        <GridCell Row="0">
+            <Label class="order-page__header large-text" Text="Your Order" />
+        </GridCell>
+        <GridCell Row="1">
+            @if (Order.Pizzas.Any())
+            {
+                <ScrollView class="order-page__scroll-view">
+                    <StackLayout class="order-page__list">
+                        @foreach (var pizza in Order.Pizzas)
+                        {
+                            <ConfiguredPizzaItem Pizza="pizza" 
+                                                 OnRemoved="() => HandleRemoveConfiguredPizza(pizza)" />
+                        }
+                    </StackLayout>
+                </ScrollView>
+            }
+            else
+            {
+                <Label class="order-page__empty-cart"
+                       TextType="TextType.Html"
+                       Text="Choose a pizza <br /> to get started" />
+            }
+        </GridCell>
+        <GridCell Row="2">
+            <StackLayout class="order-page__place-order-section">
+                <Label class="order-page__total" Text="@($"Total: {Order.GetFormattedTotalPrice()}")" />
+                <Button class="@($"order-page__place-order__button order-page__place-order__button--{GetOrderButtonModifier()}")"
+                        IsEnabled="@Order.Pizzas.Any()"
+                        CornerRadius="5"
+                        OnClick="OnPlaceOrder">Order ></Button>
+            </StackLayout>
+        </GridCell>
+    </Contents>
+</Grid>
+
+@code {
+    [Parameter]
+    public Order Order { get; set; }
+    [Parameter]
+    public EventCallback OnOrderChanged { get; set; }
+    [Parameter]
+    public EventCallback OnPlaceOrder { get; set; }
+
+    Task HandleRemoveConfiguredPizza(Pizza pizza)
+    {
+        Order.Pizzas.Remove(pizza);
+        return OnOrderChanged.InvokeAsync(null);
+    }
+
+    string GetOrderButtonModifier()
+    {
+        return Order.Pizzas.Any()
+            ? "enabled"
+            : "disabled";
+    }
+
+}

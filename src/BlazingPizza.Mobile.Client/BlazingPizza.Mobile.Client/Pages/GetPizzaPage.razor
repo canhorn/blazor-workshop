@@ -1,0 +1,71 @@
+﻿@inject HttpClient HttpClient
+
+<StackLayout>
+    <StackLayout>
+        <Label FontSize="40" Text="Blazing Pizzas" />
+    </StackLayout>
+
+    <ScrollView class="main">
+        <StackLayout class="pizza-cards">
+            @foreach (var special in specials)
+            {
+                <PizzaSpeicalImage Special="special" OnTap="ShowConfigurePizzaDialog" />
+            }
+        </StackLayout>
+    </ScrollView>
+</StackLayout>
+
+
+<ModalContainer @ref="configurePizzaDialog" OnClosed="HandleConfigurePizzaDialogClosed">
+    <ConfigurePizzaDialog Pizza="configuringPizza" OnConfirm="ConfirmConfigurePizzaDialog" />
+</ModalContainer>
+
+@code {
+    List<PizzaSpecial> specials = new List<PizzaSpecial>();
+
+    Pizza configuringPizza = null;
+    bool showingConfigureDialog = false;
+    ModalContainer configurePizzaDialog;
+
+    [Parameter]
+    public Order Order { get; set; }
+    [Parameter]
+    public EventCallback OnOrderChanged { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        specials = await HttpClient.GetFromJsonAsync<List<PizzaSpecial>>("specials");
+    }
+
+    private Task ShowConfigurePizzaDialog(
+        PizzaSpecial special
+    )
+    {
+        configuringPizza = new Pizza
+        {
+            Special = special,
+            SpecialId = special.Id,
+            Size = Pizza.DefaultSize,
+            Toppings = new List<PizzaTopping>(),
+        };
+
+        showingConfigureDialog = true;
+
+        configurePizzaDialog.ShowDialog();
+
+        return Task.CompletedTask;
+    }
+
+    public void ConfirmConfigurePizzaDialog()
+    {
+        Order.Pizzas.Add(configuringPizza);
+        configuringPizza = null;
+
+        showingConfigureDialog = false;
+        OnOrderChanged.InvokeAsync(null);
+    }
+    public void HandleConfigurePizzaDialogClosed()
+    {
+        configurePizzaDialog.FinishClosingDialog();
+    }
+}

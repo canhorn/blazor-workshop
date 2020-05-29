@@ -1,0 +1,28 @@
+﻿@inject HttpClient HttpClient
+
+<TabbedPage BarBackgroundColor="Color.Red">
+    <ContentPage Title="Get Pizza">
+        <GetPizzaPage Order="order" 
+                      OnOrderChanged="HandleOrderChanged" />
+    </ContentPage>
+    <ContentPage Title="@($"Your Order ({order.Pizzas.Count})")">
+        <OrderPage Order="order"
+                   OnPlaceOrder="HandlePlaceOrder"
+                   OnOrderChanged="HandleOrderChanged"/>
+    </ContentPage>
+</TabbedPage>
+
+@code {
+    Order order = new Order();
+
+    async Task HandlePlaceOrder()
+    {
+        await HttpClient.PostAsJsonAsync("orders", order);
+        order = new Order();
+    }
+
+    void HandleOrderChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+}

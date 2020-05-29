@@ -1,0 +1,23 @@
+﻿@inherits PizzaSpeicalImageModel
+@inject BlazingPizza.Mobile.Client.Model.AppSettings AppSettings
+
+<Frame @ref="frame" CornerRadius="2" IsClippedToBounds="true" Padding="0">
+    <Grid>
+        <Contents>
+            <GridCell>
+                <Image Source="@($"{AppSettings.ApiServerUrl}/{Special.ImageUrl}")" Aspect="Aspect.AspectFill" />
+                <StackLayout BackgroundColor="Color.Black" Opacity="0.8">
+                    <Label Text="@Special.Name"
+                           TextColor="Color.White"
+                           FontSize="24" />
+                    <Label Text="@Special.Description"
+                           TextColor="Color.White"
+                           FontSize="16" />
+                    <Label Text="@Special.GetFormattedBasePrice()"
+                           TextColor="Color.White"
+                           FontSize="24" />
+                </StackLayout>
+            </GridCell>
+        </Contents>
+    </Grid>
+</Frame>
